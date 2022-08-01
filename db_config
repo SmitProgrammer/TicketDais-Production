@@ -1,0 +1,10 @@
+{
+  "apiKey": "AIzaSyCdewMnKCWYeaAyEQ8o_DpJNT9MFArZ5rI",
+  "authDomain": "ticketdais.firebaseapp.com",
+  "databaseURL": "https://ticketdais-default-rtdb.firebaseio.com",
+  "projectId": "ticketdais",
+  "storageBucket": "ticketdais.appspot.com",
+  "messagingSenderId": "94691421849",
+  "appId": "1:94691421849:web:896ce2c62f8e707a14d208",
+  "measurementId": "G-DJY7Z3HWNW"
+}
