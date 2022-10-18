@@ -21,4 +21,7 @@ import Main.views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', Main.views.index),
+    path('register', Main.views.register),
+    path('login', Main.views.login),
+    path('forgot-password', Main.views.forgot_psw)
 ]
