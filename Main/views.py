@@ -1,11 +1,10 @@
 import geocoder
 import pyrebase
 from django.contrib import messages
-
-from django.http import HttpResponse
 # from django.contrib.gis.geoip2 import GeoIP2
-from django.shortcuts import render
-from Main.Modules import SecureData
+from django.shortcuts import render, redirect
+
+from Main.Modules import helper
 
 # Create your views here.
 firebaseConfig = {
@@ -54,8 +53,7 @@ def login(request):
     # if validate(request):
     if request.method == "POST":
         user = auth.sign_in_with_email_and_password(email=request.POST['email'], password=request.POST['password'])
-        user['displayName'] = "Smit"
-        print(user)
+
     # else:
     #     pass
     return render(request, 'login.html')
@@ -82,6 +80,9 @@ def register(request):
     if validate(request):
         user = auth.create_user_with_email_and_password(email=request.POST['email'], password=request.POST['password'])
         print(user)
+        user['displayName'] = request.POST['name']
+        user['phoneNum'] = request.POST['phone']
+        helper.CreateUser(user, db)
         messages.success(request=request, message="Account Created")
         return render(request, 'signup.html')
     else:
@@ -89,4 +90,12 @@ def register(request):
 
 
 def forgot_psw(request):
-    return render(request, 'forgot_psw.html')
+    if request.method == "POST":
+        if not request.POST['email'] == "":
+            messages.success(request=request, message="Password Reset Link Has Been Sent To Your Email Address")
+            return redirect("/")
+        else:
+            messages.warning(request, "Please Enter Your Email Address!")
+            return render(request, 'forgot_psw.html')
+    else:
+        return render(request, 'forgot_psw.html')
