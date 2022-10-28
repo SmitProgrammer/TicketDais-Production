@@ -39,7 +39,7 @@ for i in range(int(input("How many admin you want ? "))):
     <h1>{OTP}</h1></b>"""
     print("Sending OTP to  " + email)
     Email_Verification.send_otp(source_title=source_title, destination_title=destination_title, destination_mail=destination_mail, mail_subject=subject, mail_body=text)
-    print("OTP sent on  " + email if Email_Verification.email_status == True else "Something went wrong\n " +Email_Verification.email_status)
+    print("OTP sent on  " + email if Email_Verification.email_status is True else "Something went wrong\n " +Email_Verification.email_status)
     verification = False
     while True:
         try:
