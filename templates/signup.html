@@ -35,22 +35,56 @@
             <div class="row d-flex justify-content-center">
                 <div class="col-md-6 col-xl-4">
                     <div class="card">
-                        <div class="card-body text-center d-flex flex-column align-items-center" style="height: 563.8px;">
-                            <div class="bs-icon-xl bs-icon-circle bs-icon-primary shadow bs-icon my-4"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-person">
+                        <div class="card-body text-center d-flex flex-column align-items-center"
+                             style="height: 563.8px;">
+                            <div class="bs-icon-xl bs-icon-circle bs-icon-primary shadow bs-icon my-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
+                                     viewBox="0 0 16 16" class="bi bi-person">
                                     <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"></path>
-                                </svg></div>
-                            <form method="POST" style="height: 337.8px;" action="/register">
-                                {% csrf_token %}
-                                <div class="mb-3"></div><input required="true" class="form-control" type="text" data-bs-toggle="tooltip" data-bss-tooltip="" name="name" placeholder="Full Name" title="Enter your full name">
-                                <div class="mb-3"></div><input required="true" class="form-control" type="email" data-bs-toggle="tooltip" data-bss-tooltip="" name="email" placeholder="Email" title="Enter your email address">
-                                <div class="mb-3"></div><input required="true" class="form-control" type="phone" data-bs-toggle="tooltip" data-bss-tooltip="" name="phone" placeholder="Phone number without +91" title="Enter your phone number without +91">
-                                <div class="mb-3"></div><input required="true" class="form-control" type="password" data-bs-toggle="tooltip" data-bss-tooltip="" autocomplete="new-password" name="password" placeholder="Password" title="Enter your password">
-                                <div class="mb-3"></div><input required="true" class="form-control" type="password" data-bs-toggle="tooltip" data-bss-tooltip="" autocomplete="new-password" name="confirm_password" placeholder="Confirm Password" title="Confirm your password">
-                                <div class="mb-3"></div>
-                                <button class="btn btn-primary shadow d-block w-100" type="submit">Sign up</button>
-                                <div class="mb-3"></div>
+                                </svg>
+                            </div>
+                            {% if MFA == True %}
+                                <h3 class="fw-bold">Add 2FA</h3>
+                                <div class="text-muted" style="text-align: center; ">Scan this QR Code using apps
+                                    like<br><a
+                                            href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2">Google
+                                        Authenticator</a>, <a
+                                            href="https://play.google.com/store/apps/details?id=com.azure.authenticator">Microsoft
+                                        Authenticator</a>, etc
+                                </div>
+                                <img style="width: 300px; height: 300px" src="{{ img }}" alt="QR Code">
+                                <div class="text-muted" style="text-align: center;">OR</div>
+                                <div class="text-muted" style="text-align: center;">Add this key into your authenticator
+                                    app<br><b>{{ code }}</b></div>
+                            {% else %}
+                                <form method="POST" style="height: 337.8px;" action="/register">
+                                    {% csrf_token %}
+                                    <div class="mb-3"></div>
+                                    <input required="true" class="form-control" type="text" data-bs-toggle="tooltip"
+                                           data-bss-tooltip="" name="name" placeholder="Full Name"
+                                           title="Enter your full name">
+                                    <div class="mb-3"></div>
+                                    <input required="true" class="form-control" type="email" data-bs-toggle="tooltip"
+                                           data-bss-tooltip="" name="email" placeholder="Email"
+                                           title="Enter your email address">
+                                    <div class="mb-3"></div>
+                                    <input required="true" class="form-control" type="phone" data-bs-toggle="tooltip"
+                                           data-bss-tooltip="" name="phone" placeholder="Phone number without +91"
+                                           title="Enter your phone number without +91">
+                                    <div class="mb-3"></div>
+                                    <input required="true" class="form-control" type="password" data-bs-toggle="tooltip"
+                                           data-bss-tooltip="" autocomplete="new-password" name="password"
+                                           placeholder="Password" title="Enter your password">
+                                    <div class="mb-3"></div>
+                                    <input required="true" class="form-control" type="password" data-bs-toggle="tooltip"
+                                           data-bss-tooltip="" autocomplete="new-password" name="confirm_password"
+                                           placeholder="Confirm Password" title="Confirm your password">
+                                    <div class="mb-3"></div>
+                                    <button class="btn btn-primary shadow d-block w-100" type="submit">Sign up</button>
+                                    <div class="mb-3"></div>
                                 <p class="text-muted">Already have an account?&nbsp;<a href="login">Log in</a></p>
                             </form>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

@@ -1,3 +1,16 @@
+import base64
+import os
+
+import pyotp
+import qrcode
+
+from Main.Modules import SecureData
+
+vault = SecureData.Vault()
+vault_key = SecureData.SecureData(vault.key)
+print("Helper " + vault.key)
+
+
 def GetUserInfo(user, db):
     udata = db.child("/users/ " + user['localId']).get(user['idToken'])
     data = []
@@ -8,24 +21,45 @@ def GetUserInfo(user, db):
     return data
 
 
-def CreateUser(user, db):
+def CreateUser(user, db, MFA):
+    key = CreateUserVault(user, db, MFA)
+    securedata = SecureData.SecureData(key)
     data = {"users/" + user['localId'].strip(): {
-        "email_id": user['email'],
-        "email_verified": False,
-        "name": user["displayName"],
-        "balance": 0,
-        "banned": False,
-        "phone_no": user["phoneNum"],
-        "profile": ""
+        "email_id": securedata.encrypt(user['email']),
+        "email_verified": securedata.encrypt(False),
+        "name": securedata.encrypt(user["displayName"]),
+        "balance": securedata.encrypt(0),
+        "banned": securedata.encrypt(False),
+        "phone_no": securedata.encrypt(user["phoneNum"]),
+        "profile": securedata.encrypt(""),
     }}
     db.update(data, user['idToken'])
 
 
-def CreateUserVault(user, db, keys):
+def CreateUserVault(user, db, MFA):
+    key = SecureData.SecureData.GenerateKey(SecureData)
     data = {"vault/" + user["localId"]:
         {
-            "2FA_KEY": keys['2FA'],
-            "ENC_KEY": keys['ENC']
+            "ENC_KEY": vault_key.encrypt(key),
+            "2FA_KEY": vault_key.encrypt(MFA)
         }
     }
-    db.push(data, user['idToken'])
+    db.update(data, user['idToken'])
+    return key
+
+
+def Get2FA(user, db):
+    email = user["email"]
+    if not os.path.exists("tmp"):
+        os.makedirs("tmp")
+    code = pyotp.random_base32()
+    qr = qrcode.make(
+        pyotp.totp.TOTP(code).provisioning_uri(name=email, issuer_name="Ticket Dais"))
+    qr_name = "tmp/" + email
+    qr.save(qr_name, "PNG")
+    with open(qr_name, "rb") as img:
+        img = base64.b64encode(img.read()).decode("utf-8")
+    os.remove(qr_name)
+    img = "data:image/png;base64," + img
+    # db.update(data, user['idToken'])
+    return [code, img]
