@@ -12,14 +12,17 @@ print("Helper " + vault.key)
 
 
 def GetUserInfo(user, db):
-    udata = db.child("/users/ " + user['localId']).get(user['idToken'])
-    data = []
-    for user_data in udata.each():
-        info = [user_data.key(), user_data.val()]
-        data.append(info)
-    data = dict(data)
-    return data
-
+    try:
+        udata = db.child("/users/" + user['localId']).get(user['idToken'])
+        ukey = db.child("/vault/" + user['localId'] + "/ENC_KEY").get(user['idToken'])
+        data = []
+        for user_data in udata.each():
+            info = [user_data.key(), user_data.val()]
+            data.append(info)
+        data = dict(data)
+        return data
+    except:
+        return False
 
 def CreateUser(user, db, MFA):
     key = CreateUserVault(user, db, MFA)
@@ -34,6 +37,12 @@ def CreateUser(user, db, MFA):
         "profile": securedata.encrypt(""),
     }}
     db.update(data, user['idToken'])
+
+
+def DeleteUser(user, db, auth):
+    auth.delete_user_account(user['idToken'])
+    db.child("users").child(user['localId']).remove()
+    db.child("vault").child(user['localId']).remove()
 
 
 def CreateUserVault(user, db, MFA):

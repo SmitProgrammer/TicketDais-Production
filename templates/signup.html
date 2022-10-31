@@ -16,14 +16,6 @@
 </head>
 
 {% block body %}
-{#<body>#}
-{#    <nav class="navbar navbar-dark navbar-expand-md sticky-top navbar-shrink py-3" id="mainNav">#}
-{#        <div class="container"><a class="navbar-brand d-flex align-items-center" href="/"><span class="bs-icon-md bs-icon-circle bs-icon-primary-light shadow d-flex justify-content-center align-items-center me-2 bs-icon"><img height="45" width="45" src="{% static 'assets/img/TicketDais%20Logo%20-%20Transparent.png' %}"></span><span>TicketDais</span></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>#}
-{#            <div class="collapse navbar-collapse" id="navcol-1">#}
-{#                <ul class="navbar-nav mx-auto"></ul><a class="btn btn-primary shadow" role="button" href="signup.html">Sign up</a>#}
-{#            </div>#}
-{#        </div>#}
-{#    </nav>#}
     <section class="py-5">
         <div class="container py-5">
             <div class="row mb-4 mb-lg-5">
@@ -35,8 +27,7 @@
             <div class="row d-flex justify-content-center">
                 <div class="col-md-6 col-xl-4">
                     <div class="card">
-                        <div class="card-body text-center d-flex flex-column align-items-center"
-                             style="height: 563.8px;">
+                        <div class="card-body text-center d-flex flex-column align-items-center">
                             <div class="bs-icon-xl bs-icon-circle bs-icon-primary shadow bs-icon my-4">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
                                      viewBox="0 0 16 16" class="bi bi-person">
@@ -56,6 +47,22 @@
                                 <div class="text-muted" style="text-align: center;">OR</div>
                                 <div class="text-muted" style="text-align: center;">Add this key into your authenticator
                                     app<br><b>{{ code }}</b></div>
+                                <form action="/register" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" value="done" name="check">
+                                    <input type="hidden" value="{{ email }}" name="email">
+                                    <div class="mb-3"></div>
+                                    <button class="btn btn-primary shadow d-block w-100" style="width: 100%"
+                                            type="submit">Done
+                                    </button>
+                                    <div class="mb-3"></div>
+                                    <input type="hidden" name="form" value="1">
+                                </form>
+                                <div class="text-muted" style="text-align: center;">
+                                    <hr>
+                                    <b>Note: This Page Won't show again<br></b>Do not refresh this page and place this
+                                    code in somewhere safe.
+                                </div>
                             {% else %}
                                 <form method="POST" style="height: 337.8px;" action="/register">
                                     {% csrf_token %}
@@ -79,11 +86,12 @@
                                     <input required="true" class="form-control" type="password" data-bs-toggle="tooltip"
                                            data-bss-tooltip="" autocomplete="new-password" name="confirm_password"
                                            placeholder="Confirm Password" title="Confirm your password">
+                                    <input type="hidden" name="form" value="1">
                                     <div class="mb-3"></div>
                                     <button class="btn btn-primary shadow d-block w-100" type="submit">Sign up</button>
                                     <div class="mb-3"></div>
-                                <p class="text-muted">Already have an account?&nbsp;<a href="login">Log in</a></p>
-                            </form>
+                                    <p class="text-muted">Already have an account?&nbsp;<a href="login">Log in</a></p>
+                                </form>
                             {% endif %}
                         </div>
                     </div>
@@ -91,7 +99,5 @@
             </div>
         </div>
     </section>
-
-{#</body>#}
 {% endblock %}
 </html>
