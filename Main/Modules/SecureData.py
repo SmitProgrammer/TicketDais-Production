@@ -16,7 +16,7 @@ class SecureData():
         return self.secure.encrypt(str(text).encode('utf-8')).decode('utf-8')
 
     def decrypt(self, token):
-        return self.secure.decrypt(token.decode('utf-8')).decode('utf-8')
+        return self.secure.decrypt(token).decode('utf-8')
 
 
 class Vault():

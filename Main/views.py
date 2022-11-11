@@ -7,7 +7,7 @@ from django.contrib import messages
 # from django.contrib.gis.geoip2 import GeoIP2
 from django.shortcuts import render, redirect
 
-from Main.Modules import helper
+from Main.Modules import helper, EmailServices
 
 # Create your views here.
 firebaseConfig = {
@@ -60,21 +60,42 @@ def index(request):
     ip = geocoder.ip('me')
     print(ip.city)
     print(ip.latlng)
+    # helper.SendEmailVerification("smittalsaniya38@gmail.com")
     return render(request, 'index.html')
 
 
 def login(request):
-    # if validate(request):
-    if request.method == "POST":
+    user = None
+    if request.method == "POST" and 'email' in request.POST and 'password' in request.POST:
         try:
             user = auth.sign_in_with_email_and_password(email=request.POST['email'], password=request.POST['password'])
             print(user)
+            request.session['id'] = user['idToken']
+            request.session['userId'] = user['localId']
+            user = helper.get_user_info(user, db)
+            return render(request, "verify_2fa.html")
+            # return redirect("/")
         except Exception as e:
             print(e)
             if "INVALID_PASSWORD" or "EMAIL_NOT_FOUND" in str(e):
                 messages.warning(request, "Invalid email or password")
+                return redirect('/login')
         # print(user)
-    return render(request, 'login.html')
+    elif request.method == "POST" and request.POST['data'] is not None:
+        print("2fa-" * 40)
+        print(request.session.get('userId'))
+        if request.POST.get('otp') == helper.get_2fa_otp(request, db):
+            messages.success(request, "Login success!")
+            return redirect("/")
+        else:
+            messages.warning(request, "Wrong OTP Please try again")
+            return render(request, "verify_2fa.html")
+        # return HttpResponse(helper.get_2fa_otp(request, db))
+    elif request.POST.get('email') == "" or request.POST.get('password') == "":
+        messages.warning(request, "Email ID or Password cannot be empty")
+        return render(request, 'login.html')
+    else:
+        return render(request, 'login.html')
 
 
 def register(request):
@@ -93,8 +114,10 @@ def register(request):
                 print(user)
                 user['displayName'] = request.POST['name']
                 user['phoneNum'] = request.POST['phone']
-                MFA = helper.Get2FA(user, db)
-                helper.CreateUser(user, db, MFA[0])
+                MFA = helper.get_2fa(user)
+                user['2fa'] = MFA[0]
+                user['2fa_img'] = MFA[1]
+                helper.create_user(user, db, MFA[0])
                 with open("tmp/" + request.POST['email'], "w") as data:
                     json.dump(user, data)
                 created = True
@@ -102,27 +125,54 @@ def register(request):
             print(e)
             with open("tmp/" + request.POST['email']) as data:
                 user = json.load(data)
-            helper.DeleteUser(user, db, auth)
+            helper.delete_user(user, db, auth)
             messages.warning(request, "Something Went Wrong!")
-        if created:
-            helper.CreateUserVault(user, db, MFA[0])
-            print(MFA)
-            messages.success(request=request, message="Account Created")
-            return render(request, 'signup.html', {'img': MFA[1], 'code': MFA[0], 'MFA': True, 'email': user['email']})
-        else:
-            print("Refresh")
-            with open("tmp/" + request.POST['email']) as data:
-                user = json.load(data)
-            helper.DeleteUser(user, db, auth)
-            os.remove("tmp/" + request.POST['email'])
-            return redirect('register')
+        finally:
+            if created:
+                if request.method == "POST" and request.POST['form'] == "1":
+                    helper.send_email_verification(request.POST['email'])
+                    messages.success(request, f"OTP Sent on {request.POST['email']}")
+                    return render(request, 'signup.html', {'verify': True, 'email': request.POST['email']})
+
+            else:
+                print("Refresh")
+                with open("tmp/" + request.POST['email']) as data:
+                    user = json.load(data)
+                helper.delete_user(user, db, auth)
+                os.remove("tmp/" + request.POST['email'])
+                return redirect('register')
     elif request.method == "POST":
         try:
-            if request.POST['check'] == "done":
-                os.remove("tmp/" + request.POST['email'])
+            with open("tmp/" + request.POST['email']) as data:
+                user = json.load(data)
+            MFA = [user['2fa'], user['2fa_img']]
+            try:
+                # try:
+                #     if request.POST['resend']:
+                #         helper.send_email_verification(request.POST['email'])
+                #         messages.success(request, "OTP sent")
+                #         return render(request, 'signup.html', {'verify': True, 'email': request.POST['email']})
+                # except Exception as e:
+                print(f"Entered OTP {request.POST['otp']}")
+                if helper.verify_email(request.POST['otp']):
+                    # helper.create_user_vault(user, db, MFA[0])
+                    return render(request, 'signup.html',
+                                  {'img': MFA[1], 'code': MFA[0], 'MFA': True, 'email': user['email']})
+                else:
+                    messages.warning(request, "Invalid OTP")
+                    return render(request, 'signup.html', {'verify': True, 'email': user['email']})
+            except EmailServices.MaxTryReached:
+                messages.warning(request, "You have entered wrong otp 3 times")
                 return redirect("/")
+            except Exception as e:
+                print(e)
+                if request.POST['check'] == "done":
+                    messages.success(request=request, message="Account Created")
+                    os.remove("tmp/" + request.POST['email'])
+                    return redirect("/")
         except Exception as e:
             print(e)
+            helper.delete_user(user, db, auth)
             messages.warning(request, "Something went wrong!")
             return render(request, 'signup.html')
     else:
@@ -135,8 +185,11 @@ def forgot_psw(request):
             try:
                 auth.send_password_reset_email(request.POST['email'])
                 messages.success(request=request, message="Password Reset Link Has Been Sent To Your Email Address")
-            except:
-                messages.warning(request, "Something Went Wrong!")
+            except Exception as e:
+                if "EMAIL_NOT_FOUND" in str(e):
+                    messages.warning(request, "Email Not Found!")
+                else:
+                    messages.warning(request, "Something Went Wrong!")
             return redirect("/")
         else:
             messages.warning(request, "Please Enter Your Email Address!")

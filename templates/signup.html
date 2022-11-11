@@ -63,6 +63,25 @@
                                     <b>Note: This Page Won't show again<br></b>Do not refresh this page and place this
                                     code in somewhere safe.
                                 </div>
+                            {% elif verify == True %}
+                                <form method="POST" style="height: 337.8px;" action="/register">
+                                    {% csrf_token %}
+                                    <div class="mb-3"></div>
+                                    <input required="true" class="form-control" type="text" data-bs-toggle="tooltip"
+                                           data-bss-tooltip="" name="otp" placeholder="OTP" title="Enter OTP">
+                                    <input type="hidden" name="email" value="{{ email }}">
+                                    <div class="mb-3"></div>
+
+                                    {#                                  <button class="btn btn-primary shadow d-block w-100" name="resend" type="submit">Resend OTP</button>#}
+                                    <button class="btn btn-primary shadow d-block w-100" type="submit">Next</button>
+                                </form>
+                                <form method="post" action="/register">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="email" value="{{ email }}">
+                                    <input type="hidden" name="resend" value="true">
+                                    <p class="text-muted">Didn't received OTP yet?&nbsp;<a type="submit">Resend</a></p>
+                                </form>
+                                <div class="mb-3"></div>
                             {% else %}
                                 <form method="POST" style="height: 337.8px;" action="/register">
                                     {% csrf_token %}

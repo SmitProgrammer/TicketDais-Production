@@ -1,8 +1,9 @@
+import random
 import smtplib
 import ssl
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import random
+
 
 class MaxTryReached(Exception):
     def __init__(self, value):
@@ -24,13 +25,11 @@ class EmailVerification():
 
     # @property
     def send_otp(self, destination_mail, source_title, destination_title, mail_subject, mail_body):
-        sets = "0123456789"
-        SendEmail = SendMail(self.source_mail, self.psw)
-        for i in range(self.length):
-            self.otp = self.otp + random.choice(sets)
+        send_email = SendMail(self.source_mail, self.psw)
+        self.otp = str(random.randint(int("0" * self.length), int("9" * self.length)))
         mail_body = mail_body.replace(r"{OTP}", self.otp)
         # print(mail_body)
-        self.email_status = SendEmail.send(source_title, destination_title, destination_mail, mail_subject, mail_body)
+        self.email_status = send_email.send(source_title, destination_title, destination_mail, mail_subject, mail_body)
 
     def verify_otp(self, otp):
         if self.trys > 0:
@@ -39,6 +38,7 @@ class EmailVerification():
                 return True
             else:
                 self.trys -= 1
+                return False
         else:
             raise MaxTryReached("Maximum Try Reached")
 
