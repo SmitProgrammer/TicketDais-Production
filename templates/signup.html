@@ -79,7 +79,7 @@
                                     {% csrf_token %}
                                     <input type="hidden" name="email" value="{{ email }}">
                                     <input type="hidden" name="resend" value="true">
-                                    <p class="text-muted">Didn't received OTP yet?&nbsp;<a type="submit">Resend</a></p>
+                                    {#                                    <p class="text-muted">Didn't received OTP yet?&nbsp;<a type="submit">Resend</a></p>#}
                                 </form>
                                 <div class="mb-3"></div>
                             {% else %}

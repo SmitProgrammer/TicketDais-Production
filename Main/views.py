@@ -51,9 +51,12 @@ def validate(request):
 
 
 def index(request):
-    user = auth.current_user
+    user = request.session.get('id')
     if user is not None:
-        auth.refresh(auth.current_user['refreshToken'])
+        try:
+            auth.refresh(auth.current_user['refreshToken'])
+        except Exception as e:
+            print(e)
         print(auth.current_user)
     if not os.path.exists("tmp"):
         os.makedirs("tmp")
@@ -73,6 +76,7 @@ def login(request):
             request.session['id'] = user['idToken']
             request.session['userId'] = user['localId']
             user = helper.get_user_info(user, db)
+            print(user)
             return render(request, "verify_2fa.html")
             # return redirect("/")
         except Exception as e:
@@ -209,3 +213,11 @@ def edit(request):
     else:
         messages.warning(request, "Something went wrong!")
     return redirect(request, '/')
+
+
+def about(request):
+    return render(request, 'about.html')
+
+
+def contact(request):
+    return render(request, 'contact.html')

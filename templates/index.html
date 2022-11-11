@@ -4,12 +4,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    {% block title %}TicketDais{% endblock %}
     <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}"/>
 </head>
 <body>
 {% block body %}
-    <img src="{{ img }}">
+    <section class="py-4 py-xl-5">
+        <div class="container">
+            <div class="text-center p-4 p-lg-5">
+                <p class="fw-bold text-primary mb-2">Launching soon...</p>
+                <h1 class="fw-bold mb-4">TicketDais<br><h6>the best online ticket booking system</h6></h1>
+            </div>
+        </div>
+    </section>
 {% endblock %}
 </body>
 </html>

@@ -24,5 +24,7 @@ urlpatterns = [
     path('register', Main.views.register),
     path('login', Main.views.login),
     path('forgot-password', Main.views.forgot_psw),
-    path('edit', Main.views.edit)
+    path('edit', Main.views.edit),
+    path('about', Main.views.about),
+    path('contact', Main.views.contact)
 ]
