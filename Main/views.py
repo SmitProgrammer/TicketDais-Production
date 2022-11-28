@@ -1,12 +1,9 @@
 import json
 import os.path
-
-import geocoder
 import pyrebase
 from django.contrib import messages
-# from django.contrib.gis.geoip2 import GeoIP2
 from django.shortcuts import render, redirect
-
+import geocoder
 from Main.Modules import helper, EmailServices
 
 # Create your views here.
@@ -54,6 +51,7 @@ def index(request):
     user = request.session.get('id')
     if user is not None:
         try:
+            user = auth.get_account_info(user)
             auth.refresh(auth.current_user['refreshToken'])
         except Exception as e:
             print(e)
@@ -87,6 +85,9 @@ def login(request):
         # print(user)
     elif request.method == "POST" and request.POST['data'] is not None:
         print("2fa-" * 40)
+        user = dict(auth.get_account_info(request.session.get('id'))['users'])
+        print(user)
+        helper.verify_user(request.session.get('id'), db)
         print(request.session.get('userId'))
         if request.POST.get('otp') == helper.get_2fa_otp(request, db):
             messages.success(request, "Login success!")
@@ -126,25 +127,28 @@ def register(request):
                     json.dump(user, data)
                 created = True
         except Exception as e:
-            print(e)
-            with open("tmp/" + request.POST['email']) as data:
-                user = json.load(data)
-            helper.delete_user(user, db, auth)
-            messages.warning(request, "Something Went Wrong!")
+            if "EMAIL_EXISTS" in str(e):
+                print(e)
+                messages.warning(request, "Email ID already registered")
+            elif os.path.exists("tmp/" + request.POST['email']):
+                with open("tmp/" + request.POST['email']) as data:
+                    user = json.load(data)
+                helper.delete_user(user, db, auth)
+                messages.warning(request, "Something Went Wrong!")
         finally:
             if created:
                 if request.method == "POST" and request.POST['form'] == "1":
                     helper.send_email_verification(request.POST['email'])
                     messages.success(request, f"OTP Sent on {request.POST['email']}")
                     return render(request, 'signup.html', {'verify': True, 'email': request.POST['email']})
-
             else:
                 print("Refresh")
-                with open("tmp/" + request.POST['email']) as data:
-                    user = json.load(data)
-                helper.delete_user(user, db, auth)
-                os.remove("tmp/" + request.POST['email'])
-                return redirect('register')
+                if os.path.exists("tmp/" + request.POST['email']):
+                    with open("tmp/" + request.POST['email']) as data:
+                        user = json.load(data)
+                    helper.delete_user(user, db, auth)
+                    os.remove("tmp/" + request.POST['email'])
+                return redirect('/register')
     elif request.method == "POST":
         try:
             with open("tmp/" + request.POST['email']) as data:
