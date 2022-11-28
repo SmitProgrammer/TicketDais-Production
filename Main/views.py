@@ -92,9 +92,8 @@ def login(request):
         if request.POST.get('otp') == helper.get_2fa_otp(request, db):
             messages.success(request, "Login success!")
             return redirect("/")
-        else:
-            messages.warning(request, "Wrong OTP Please try again")
-            return render(request, "verify_2fa.html")
+        messages.warning(request, "Wrong OTP Please try again")
+        return render(request, "verify_2fa.html")
         # return HttpResponse(helper.get_2fa_otp(request, db))
     elif request.POST.get('email') == "" or request.POST.get('password') == "":
         messages.warning(request, "Email ID or Password cannot be empty")
@@ -166,9 +165,8 @@ def register(request):
                     # helper.create_user_vault(user, db, MFA[0])
                     return render(request, 'signup.html',
                                   {'img': MFA[1], 'code': MFA[0], 'MFA': True, 'email': user['email']})
-                else:
-                    messages.warning(request, "Invalid OTP")
-                    return render(request, 'signup.html', {'verify': True, 'email': user['email']})
+                messages.warning(request, "Invalid OTP")
+                return render(request, 'signup.html', {'verify': True, 'email': user['email']})
             except EmailServices.MaxTryReached:
                 messages.warning(request, "You have entered wrong otp 3 times")
                 return redirect("/")
@@ -199,9 +197,8 @@ def forgot_psw(request):
                 else:
                     messages.warning(request, "Something Went Wrong!")
             return redirect("/")
-        else:
-            messages.warning(request, "Please Enter Your Email Address!")
-            return render(request, 'forgot_psw.html')
+        messages.warning(request, "Please Enter Your Email Address!")
+        return render(request, 'forgot_psw.html')
     else:
         return render(request, 'forgot_psw.html')
 
