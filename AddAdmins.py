@@ -47,9 +47,8 @@ for i in range(int(input("How many admin you want ? "))):
                 print("Email Verified")
                 verification = True
                 break
-            else:
-                print("Verification Failed\nUnable To Create Admin")
-                verification = False
+            print("Verification Failed\nUnable To Create Admin")
+            verification = False
         except EmailServices.MaxTryReached:
             print("Email Verification Failed")
             verification = False
