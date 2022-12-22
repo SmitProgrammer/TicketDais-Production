@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 **/__pycache__/
 venv
+=======
+*/__pycache__/
+Server
+>>>>>>> d3f7a89f5042e836a8ab9e80b124c9efc9a356b9

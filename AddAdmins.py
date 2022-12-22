@@ -47,38 +47,36 @@ for i in range(int(input("How many admin you want ? "))):
                 print("Email Verified")
                 verification = True
                 break
-            else:
-                print("Verification Failed\nUnable To Create Admin")
-                verification = False
+            print("Verification Failed\nUnable To Create Admin")
+            verification = False
         except EmailServices.MaxTryReached:
             print("Email Verification Failed")
             verification = False
             break
     if not verification:
         continue
-    else:
-        print("Creating user...")
-        user_login = auth.create_user_with_email_and_password(email, psw)
-        print("Adding user into database...")
-        data = {
-          "users/ " +user_login["localId"]: {
-            "email_id": email,
-            "name": input("Enter Your name: "),
-            "balance": 100,
-            "email_verified": verification,
-            "phone_no": input("Enter your phone number: "),
-            "banned": False,
-            "profile": "",
-            "tickets" :{
-                "bus" :{},
-                "train" :{},
-                "flight" :{},
-            }
-          }
+    print("Creating user...")
+    user_login = auth.create_user_with_email_and_password(email, psw)
+    print("Adding user into database...")
+    data = {
+      "users/ " +user_login["localId"]: {
+        "email_id": email,
+        "name": input("Enter Your name: "),
+        "balance": 100,
+        "email_verified": verification,
+        "phone_no": input("Enter your phone number: "),
+        "banned": False,
+        "profile": "",
+        "tickets" :{
+            "bus" :{},
+            "train" :{},
+            "flight" :{},
         }
-        db.update(data)
-        admins.append(user_login["localId"]+":"+email)
-        print(f"{email} is successfully added")
+      }
+    }
+    db.update(data)
+    admins.append(user_login["localId"]+":"+email)
+    print(f"{email} is successfully added")
 for admin in admins:
     print(admin)
     # admin = admin.split()

@@ -36,9 +36,8 @@ class EmailVerification():
             if str(otp) == str(self.otp):
                 self.verified = True
                 return True
-            else:
-                self.trys -= 1
-                return False
+            self.trys -= 1
+            return False
         else:
             raise MaxTryReached("Maximum Try Reached")
 

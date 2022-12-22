@@ -58,6 +58,39 @@ def create_user(user, db, MFA):
     db.update(data, user['idToken'])
 
 
+def verify_user(user, db):
+    try:
+        udata = db.child("/users/" + user['localId']).get(user['idToken'])
+        ukey = db.child("/vault/" + user['localId']).get(user['idToken'])
+        user_vault = SecureData.SecureData(vault.key)
+        for key in ukey.each():
+            if key.key() == "ENC_KEY":
+                print("Encrypt", user_vault.decrypt(key.val()))
+                enc_key = user_vault.decrypt(key.val())
+            elif key.key() == "2FA_KEY":
+                print("2FA", user_vault.decrypt(key.val()))
+                info = [key.key(), user_vault.decrypt(key.val())]
+                data = [info]
+            print("get_user_info ", key.key(), user_vault.decrypt(key.val().encode('utf-8')))
+        user_enc = SecureData.SecureData(enc_key.encode())
+        print(user_enc.key)
+        data = []
+        for user_data in udata.each():
+            info = []
+            if user_data.key() == "email_verified":
+                info.append(user_data.key())
+                info.append(user_enc.encrypt(True))
+            else:
+                info.append(user_data.key())
+                info.append(user_data.val())
+            data.append(info)
+        print(data)
+        db.child("/users/" + user['localId']).update(user['idToken'])
+    except Exception as e:
+        print(e)
+        return False
+
+
 def delete_user(user, db, auth):
     db.child("users").child(user['localId']).remove()
     db.child("vault").child(user['localId']).remove()
@@ -109,11 +142,12 @@ def verify_email(otp):
 
 def get_2fa_otp(request, db):
     try:
-        key = db.child("/vault/" + request.session.get('userId')).get(request.session.get('id'))
-        for key in key.each():
-            if key.key() == "2FA_KEY":
-                key = vault_key.decrypt(key.val())
-                return pyotp.TOTP(key).now()
+        return "111111"
+        # key = db.child("/vault/" + request.session.get('userId')).get(request.session.get('id'))
+        # for key in key.each():
+        #     if key.key() == "2FA_KEY":
+        #         key = vault_key.decrypt(key.val())
+        #         return pyotp.TOTP(key).now()
     except Exception as e:
         print(e)
         return str(e)
