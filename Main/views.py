@@ -86,7 +86,7 @@ def login(request):
                 return redirect('/login')
         # print(user)
     elif request.method == "POST" and request.POST['data'] is not None:
-        print("2fa-" * 40)
+        # print("2fa-" * 40)
         print(request.session.get('userId'))
         if request.POST.get('otp') == helper.get_2fa_otp(request, db):
             messages.success(request, "Login success!")
