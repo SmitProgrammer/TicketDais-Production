@@ -6,6 +6,7 @@ email_verification = EmailServices.EmailVerification(EMAIL_HOST, EMAIL_HOST_PASS
 
 
 def send_otp(request, email):
+    """Send OTP to the user's email"""
     msg = open("./Main/Modules/EmailTemplate/verify_email.html").read()
     email_verification.send_otp(email, "TicketDais - Verification", "TicketDais - Verification", "OTP For TicketDais",
                                 msg)

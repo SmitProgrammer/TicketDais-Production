@@ -17,6 +17,7 @@ def __init__():
 
 
 def get_user_info(user, db):
+    """Get user info from the database and decrypt it using the vault key and the user's encryption key and return it as a dictionary"""
     try:
         udata = db.child("/users/" + user['localId']).get(user['idToken'])
         ukey = db.child("/vault/" + user['localId']).get(user['idToken'])
@@ -43,6 +44,7 @@ def get_user_info(user, db):
 
 
 def create_user(user, db, MFA):
+    """Create a user in the database and encrypt the data using the vault key and the user's encryption key"""
     key = create_user_vault(user, db, MFA)
     securedata = SecureData.SecureData(key)
     print(key)
@@ -59,6 +61,7 @@ def create_user(user, db, MFA):
 
 
 def verify_user(user, db):
+    """Verify the user's email and update the database"""
     try:
         udata = db.child("/users/" + user['localId']).get(user['idToken'])
         ukey = db.child("/vault/" + user['localId']).get(user['idToken'])
@@ -92,12 +95,14 @@ def verify_user(user, db):
 
 
 def delete_user(user, db, auth):
+    """Delete the user from the database and the authentication"""
     db.child("users").child(user['localId']).remove()
     db.child("vault").child(user['localId']).remove()
     auth.delete_user_account(user['idToken'])
 
 
 def create_user_vault(user, db, MFA):
+    """Create a vault for the user and return the encryption key"""
     key = SecureData.SecureData.GenerateKey(SecureData)
     print("generated key: " + key)
     data = {"vault/" + user["localId"]:
@@ -111,6 +116,7 @@ def create_user_vault(user, db, MFA):
 
 
 def get_2fa(user):
+    """Generate a QR code for the user's 2FA and return the code and the image"""
     email = user["email"]
     if not os.path.exists("tmp"):
         os.makedirs("tmp")
@@ -131,23 +137,24 @@ email_verification = EmailServices.EmailVerification(EMAIL_HOST, EMAIL_HOST_PASS
 
 
 def send_email_verification(email):
+    """Send an email verification to the user's email address using the email template and email_verification module"""
     msg = open("./Main/Modules/EmailTemplate/verify_email.html").read()
-    email_verification.send_otp(email, "TicketDais - Verification", "TicketDais - Verification", "OTP For TicketDais",
-                                msg)
+    email_verification.send_otp(email, "TicketDais - Verification", "TicketDais - Verification", "OTP For TicketDais", msg)
 
 
 def verify_email(otp):
+    """Verify the user's email using the email_verification module"""
     return email_verification.verify_otp(otp)
 
 
 def get_2fa_otp(request, db):
+    """Get the user's 2FA key from the database and return the current OTP"""
     try:
-        return "111111"
-        # key = db.child("/vault/" + request.session.get('userId')).get(request.session.get('id'))
-        # for key in key.each():
-        #     if key.key() == "2FA_KEY":
-        #         key = vault_key.decrypt(key.val())
-        #         return pyotp.TOTP(key).now()
+        key = db.child("/vault/" + request.session.get('userId')).get(request.session.get('id'))
+        for key in key.each():
+            if key.key() == "2FA_KEY":
+                key = vault_key.decrypt(key.val())
+                return pyotp.TOTP(key).now()
     except Exception as e:
         print(e)
         return str(e)
