@@ -4,6 +4,12 @@ import os
 import pyotp
 import qrcode
 
+
+import platform
+import psutil
+
+import socket
+
 from Main.Modules import SecureData, EmailServices
 from TicketDais.settings import EMAIL_HOST, EMAIL_HOST_PASSWORD
 
@@ -158,3 +164,29 @@ def get_2fa_otp(request, db):
     except Exception as e:
         print(e)
         return str(e)
+
+
+
+def get_device_info():
+    """Get the device information"""
+    device_info = {}
+
+    # Get operating system name
+    device_info['os_name'] = platform.system()
+
+    # Get RAM
+    device_info['ram'] = round(psutil.virtual_memory().total / (1024.0 ** 3))
+
+    # Get processor name
+    device_info['processor'] = platform.processor()
+
+    # Get IP address
+    device_info['ip_address'] = socket.gethostbyname(socket.gethostname())
+
+    # Get device type (e.g. desktop, laptop, server, etc.)
+    device_info['device_type'] = platform.machine()
+
+    # Get company (e.g. Dell, HP, Lenovo, etc.)
+    device_info['company'] = platform.uname().system
+
+    return device_info

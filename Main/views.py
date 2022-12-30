@@ -66,6 +66,7 @@ def index(request):
     ip = geocoder.ip('me')
     print(ip.city)
     print(ip.latlng)
+    print(helper.get_device_info())
     # helper.SendEmailVerification("smittalsaniya38@gmail.com")
     return render(request, 'index.html')
 

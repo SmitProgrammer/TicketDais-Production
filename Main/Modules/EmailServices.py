@@ -29,7 +29,6 @@ class EmailVerification():
         self.length = length
         self.source_mail = source_mail
 
-    # @staticmethod # This is a static method, so you don't need to create an object to use it
     def send_otp(self, destination_mail, source_title, destination_title, mail_subject, mail_body):
         """This method sends the OTP to the destination mail
         :param destination_mail: The email to which the OTP will be sent
