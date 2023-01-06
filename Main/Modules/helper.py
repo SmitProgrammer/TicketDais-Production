@@ -10,6 +10,7 @@ import psutil
 
 import socket
 
+import pyautogui
 from Main.Modules import SecureData, EmailServices
 from TicketDais.settings import EMAIL_HOST, EMAIL_HOST_PASSWORD
 
@@ -175,7 +176,9 @@ def get_device_info():
     device_info['os_name'] = platform.system()
 
     # Get RAM
-    device_info['ram'] = round(psutil.virtual_memory().total / (1024.0 ** 3))
+    # device_info['ram'] = round(psutil.virtual_memory().total / (1024.0 ** 3)) # Not accurate
+    device_info['ram'] = str(round(psutil.virtual_memory().total / (1024.0 ** 3), 2)) + " GB"
+    # device_info['ram'] = str(round(psutil.virtual_memory().total)) + " GB"
 
     # Get processor name
     device_info['processor'] = platform.processor()
@@ -185,8 +188,33 @@ def get_device_info():
 
     # Get device type (e.g. desktop, laptop, server, etc.)
     device_info['device_type'] = platform.machine()
+    device_info['device_type'] = device_info['device_type'].replace("x86_64", "Desktop")
+    device_info['device_type'] = device_info['device_type'].replace("AMD64", "Desktop")
+    device_info['device_type'] = device_info['device_type'].replace("i386", "Desktop")
+    device_info['device_type'] = device_info['device_type'].replace("i686", "Desktop")
+    device_info['device_type'] = device_info['device_type'].replace("i586", "Desktop")
+    device_info['device_type'] = device_info['device_type'].replace("i486", "Desktop")
+    device_info['device_type'] = device_info['device_type'].replace("i386", "Desktop")
+    device_info['device_type'] = device_info['device_type'].replace("i286", "Desktop")
+    device_info['device_type'] = device_info['device_type'].replace("i186", "Desktop")
+    device_info['device_type'] = device_info['device_type'].replace("i86", "Desktop")
+
+    device_info['device_type'] = device_info['device_type'].replace("x86", "Desktop")
+    device_info['device_type'] = device_info['device_type'].replace("AMD", "Desktop")
+    device_info['device_type'] = device_info['device_type'].replace("Intel", "Desktop")
+    
+    device_info['device_type'] = device_info['device_type'].replace("ARM", "Mobile")
+    device_info['device_type'] = device_info['device_type'].replace("arm", "Mobile")
+    device_info['device_type'] = device_info['device_type'].replace("aarch64", "Mobile")
+    device_info['device_type'] = device_info['device_type'].replace("AARCH64", "Mobile")
+
+    device_info['device_type'] = device_info['device_type'].replace("Raspberry", "Raspberry Pi")
 
     # Get company (e.g. Dell, HP, Lenovo, etc.)
-    device_info['company'] = platform.uname().system
+    # device_info['company'] = platform.uname().system # Not Working
+    device_info['company'] = platform.uname().node
+
+    device_info['device_resolution'] = [str(x) for x in pyautogui.size()]
+
 
     return device_info
